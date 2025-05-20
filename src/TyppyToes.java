@@ -37,9 +37,6 @@ public class TyppyToes implements Runnable, KeyListener {
     public int points;
     public boolean TypIsIntersectingGho;
 
-//    public boolean TypIsIntersectingGho=false;
-//    public int points;
-
     //Declare the variables needed for the graphics
     public JFrame frame;
     public Canvas canvas;
@@ -66,9 +63,9 @@ public class TyppyToes implements Runnable, KeyListener {
         Typpy = new Character(600, 500, 1, 1, 130, 200);
         Ghoul=new Character[26];
         for (int i=0; i<Ghoul.length; i++){
-            int randomX = (int) (Math.random()*1000);
-            int randomY = (int) (Math.random()*700);
-            Ghoul[i] = new Character(randomX, randomY, 1, 1, 80, 80);
+            int xpos = (int) (Math.random()*1300);
+            int ypos = (int) (Math.random()*1000)-400;
+            Ghoul[i] = new Character(xpos, ypos, 1, 1, 80, 80);
             Ghoul[i].printInfo();
         }
 
@@ -116,16 +113,30 @@ public class TyppyToes implements Runnable, KeyListener {
     public void run() {
         //for the moment we will loop things forever.
         while (true) {
-            moveThings();  //move all the game objects
+            GhoulAttack();
+            moveThings();//move all the game objects
             render();  // paint the graphics
             pause(10); // sleep for 10 ms
+        }
+    }
+    public void GhoulAttack(){
+        for (int i=0; i< Ghoul.length; i++) {
+            if (Ghoul[i].xpos< Typpy.xpos) {
+                Ghoul[i].dx = (Typpy.xpos-Ghoul[i].xpos)/100;
+                Ghoul[i].dy = (Typpy.ypos-Ghoul[i].ypos)/((700-Ghoul[i].ypos)/50);
+            }else{
+                Ghoul[i].dx = -1*(Ghoul[i].xpos-Typpy.xpos)/150;
+                Ghoul[i].dy = (Typpy.ypos-Ghoul[i].ypos)/150;
+
+            }
         }
     }
 
     public void moveThings() {
         //call the move() code for each object
         for (int i=0; i<Ghoul.length; i++){
-            Ghoul[i].GhoulAttack();
+            Ghoul[i].simpleMove();
+            System.out.println("i: "+i+" dx " + Ghoul[i].dx +" dy "+ Ghoul[i].dy);
 
             checkIntersections();
         }
@@ -137,7 +148,7 @@ public class TyppyToes implements Runnable, KeyListener {
                 TypIsIntersectingGho=true;
                 points = points - 1;
                 Ghoul[i].ypos=0;
-                Ghoul[i].xpos=(int)(Math.random()*1301);
+
             }if (Ghoul[i].rec.intersects(Typpy.rec)==false){
                 TypIsIntersectingGho=false;
             }
@@ -152,7 +163,10 @@ public class TyppyToes implements Runnable, KeyListener {
         //draw the images
         g.drawImage(BackgroundPic, 0, 0, WIDTH, HEIGHT, null);
 
-        if (Typpy.isAlive == true){g.drawImage(TyppyPic, Typpy.xpos, Typpy.ypos,Typpy.width, Typpy.height, null);}
+        if (Typpy.isAlive == true){g.drawImage(TyppyPic, Typpy.xpos, Typpy.ypos,Typpy.width, Typpy.height, null);
+        g.drawRect(Typpy.rec.x, Typpy.rec.y,Typpy.rec.width,Typpy.rec.height );
+        }
+
         if (Ghoul[0].isAlive==true){g.drawImage(GhoulA, Ghoul[0].xpos, Ghoul[0].ypos, Ghoul[0].width, Ghoul[0].height, null);}
         if (Ghoul[1].isAlive==true){g.drawImage(GhoulB, Ghoul[1].xpos, Ghoul[1].ypos, Ghoul[1].width, Ghoul[1].height, null);}
         if (Ghoul[2].isAlive==true){g.drawImage(GhoulC, Ghoul[2].xpos, Ghoul[2].ypos, Ghoul[2].width, Ghoul[2].height, null);}

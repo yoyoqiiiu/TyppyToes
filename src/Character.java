@@ -31,12 +31,17 @@ public class Character {
         System.out.println("Is your Hero alive? " + isAlive);
     }
 
-    public void GhoulAttack(){
-        dx = (xpos - 600)/50;
-        System.out.println("dx = " + dx);
-        dy = -(ypos - 500)/50;
-        System.out.println("dy = " + dy);
+//    public void GhoulAttack(){
+//        dx = (620 - xpos)/500;
+//        dy = (500 - ypos)/500;
+//        xpos += dx;
+//        ypos += dy;
+//    }
 
+    public void simpleMove(){
+        xpos = xpos + dx;
+        ypos = ypos + dy;
+        rec = new Rectangle(xpos, ypos, width, height);
     }
 
     public void Level1Speed(){
