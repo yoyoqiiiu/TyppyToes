@@ -284,7 +284,7 @@ public void startLevel1(){
             g.drawString("12 A.M. 1st January, 2000.", 100, 100);
             g.drawString("You feel your eyelids slowly enclosing. It is way past your sleep time anyways.", 100, 100);
             g.drawString("Nothing has happened. Everything remains exactly as it was.", 100, 200);
-            g.drawString("The old life that we lived so fondly together is untouched, unchanged.", 100, 300);
+            g.drawString("Whatever we were to each other, that we are still.", 100, 300);
             g.drawString("*PRESS ENTER KEY TO RESTART*", 100, 600);
         } else if (startScreen1){
             g.setColor(new Color(20, 30, 100));
