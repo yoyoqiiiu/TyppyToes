@@ -2,16 +2,16 @@ import java.awt.*;
 
 public class Character {
     //declare variables
-    public int xpos;
-    public int ypos;
-    public int dx;
-    public int dy;
+    public double xpos;
+    public double ypos;
+    public double dx;
+    public double dy;
     public int width;
     public int height;
     boolean isAlive;
     public Rectangle rec;
 
-    public Character (int pXpos, int pYpos, int pDx, int pDy, int pWidth, int pHeight){
+    public Character (double pXpos, double pYpos, double pDx, double pDy, int pWidth, int pHeight){
         xpos = pXpos;
         ypos = pYpos;
         dx = pDx;
@@ -19,7 +19,7 @@ public class Character {
         width = pWidth;
         height = pHeight;
         isAlive = true;
-        rec = new Rectangle(xpos, ypos, width, height);
+        rec = new Rectangle((int) xpos, (int) ypos, width, height);
     }
     public void printInfo(){
         System.out.println("X position: " + xpos);
@@ -38,10 +38,10 @@ public class Character {
 //        ypos += dy;
 //    }
 
-    public void simpleMove(){
-        xpos = xpos + dx;
-        ypos = ypos + dy;
-        rec = new Rectangle(xpos, ypos, width, height);
+    public void simpleMove() {
+        xpos += dx;
+        ypos += dy;
+        rec.setLocation((int)xpos, (int)ypos);
     }
 
     public void Level1Speed(){
@@ -52,7 +52,7 @@ public class Character {
         }
         xpos = xpos + dx;
         ypos = ypos + dy;
-        rec = new Rectangle(xpos, ypos, width, height);
+        rec = new Rectangle((int) xpos, (int) ypos, width, height);
     }
 
     public void Level2Speed(){
@@ -63,6 +63,6 @@ public class Character {
         }
         xpos = xpos + 2*dx;
         ypos = ypos + 2*dx;
-        rec = new Rectangle(xpos, ypos, width, height);
+        rec = new Rectangle((int) xpos, (int) ypos, width, height);
     }
 }
