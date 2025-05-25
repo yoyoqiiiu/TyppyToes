@@ -282,9 +282,9 @@ public void startLevel1(){
             g.setColor(Color.WHITE);
             g.setFont(new Font("Courier New", Font.BOLD, 15));
             g.drawString("12 A.M. 1st January, 2000.", 100, 100);
-            g.drawString("You feel your eyelids slowly enclosing. It is way past your sleep time anyways.", 100, 100);
-            g.drawString("Nothing has happened. Everything remains exactly as it was.", 100, 200);
-            g.drawString("Whatever we were to each other, that we are still.", 100, 300);
+            g.drawString("You feel your eyelids slowly enclosing. It is way past your sleep time anyways.", 100, 200);
+            g.drawString("Nothing has happened. Everything remains exactly as it was.", 100, 300);
+            g.drawString("Whatever we were to each other, that we are still.", 100, 400);
             g.drawString("*PRESS ENTER KEY TO RESTART*", 100, 600);
         } else if (startScreen1){
             g.setColor(new Color(20, 30, 100));
@@ -305,7 +305,7 @@ public void startLevel1(){
             g.setFont(new Font("Courier New", Font.BOLD, 15));
             g.drawString("11:30 P.M. 31st December, 1999.", 100, 100);
             g.drawString("You do not believe in that apocalyptic crap. You don't think you do.", 100, 200);
-            g.drawString("You're feeling dizzy. Not the sleepy kind.", 100, 300);
+            g.drawString("You are feeling dizzy. Not the sleepy kind.", 100, 300);
             g.drawString("*PRESS ENTER KEY TO CONTINUE*", 100, 600);
         } else if (startScreen3){
             g.setColor(new Color(20, 30, 100));
