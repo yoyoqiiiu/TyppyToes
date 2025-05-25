@@ -15,9 +15,8 @@ import java.awt.image.BufferStrategy;
 import java.awt.*;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
+import javax.sound.sampled.*;
 //*******************************************************************************
-
 public class TyppyToes implements Runnable, KeyListener {
 
     //Variable Definition Section
@@ -35,7 +34,9 @@ public class TyppyToes implements Runnable, KeyListener {
     final int HEIGHT = 700;
 
     public int points;
+    public int lives;
     public boolean TypIsIntersectingGho;
+    public double pspeed;
 
     //Declare the variables needed for the graphics
     public JFrame frame;
@@ -48,7 +49,13 @@ public class TyppyToes implements Runnable, KeyListener {
     public boolean level1;
     public boolean startScreen2;
     public boolean level2;
+    public boolean startScreen3;
+    public boolean level3;
     public boolean gameOver;
+    public boolean happyEnding;
+
+    private Clip backgroundMusic;
+    private boolean musicPlaying = false;
 
     // Main method definition
     // This is the code that runs first and automatically
@@ -63,6 +70,7 @@ public class TyppyToes implements Runnable, KeyListener {
     public TyppyToes() { // BasicGameApp constructor
 
         setUpGraphics();
+        playMusic();
 
         //creating and constructing images
             GhoulA = Toolkit.getDefaultToolkit().getImage("A-Photoroom.png");
@@ -107,38 +115,73 @@ public void runCorrectLevel(){
     startScreen1=false;
     level1=true;
     startLevel1();
-    } if (level1 && points>15){
+    } if (level1 && points>50){
         level1=false;
         startScreen2=true;
+        return;
     } if (startScreen2){
         startScreen2=false;
         level2=true;
         startLevel2();
+    } if (level2 && points>30){
+        level2=false;
+        startScreen3=true;
+        return;
+    } if (startScreen3){
+        startScreen3=false;
+        level3=true;
+        startLevel3();
+    } if (level3 && points>20){
+        level3=false;
+        happyEnding=true;
+        return;
     } if (gameOver){
         gameOver=false;
         level1=true;
         startLevel1();
+    } if (happyEnding){
+        happyEnding=false;
+        startScreen1=true;
     }
 }
 public void startLevel1(){
-    Typpy = new Character(600, 500, 1, 1, 130, 200);
+        points=0;
+        Typpy = new Character(600, 500, 1, 1, 130, 200);
     Ghoul=new Character[26];
     for (int i=0; i<Ghoul.length; i++){
         int xpos = (int) (Math.random()*1300)*2;
-        int ypos = (int) (Math.random()*1000)-400;
+        int ypos = (int) (Math.random()*1000)-500;
         Ghoul[i] = new Character(xpos, ypos, 1, 1, 80, 80);
+        Ghoul[i].isAlive=true;
     }
-    points=0;
+    lives=5;
+    pspeed=0.4;
 }
     public void startLevel2(){
+        points=0;
         Typpy = new Character(600, 500, 1, 1, 130, 200);
         Ghoul=new Character[26];
         for (int i=0; i<Ghoul.length; i++){
             int xpos = (int) (Math.random()*1300)*2;
-            int ypos = (int) (Math.random()*1000)-400;
+            int ypos = (int) (Math.random()*1000)-500;
             Ghoul[i] = new Character(xpos, ypos, 1, 1, 80, 80);
+            Ghoul[i].isAlive=true;
         }
+        pspeed=0.7;
+        lives=7;
+    }
+    public void startLevel3(){
         points=0;
+        Typpy = new Character(600, 500, 1, 1, 130, 200);
+        Ghoul=new Character[26];
+        for (int i=0; i<Ghoul.length; i++){
+            int xpos = (int) (Math.random()*1300)*2;
+            int ypos = (int) (Math.random()*1000)-500;
+            Ghoul[i] = new Character(xpos, ypos, 1, 1, 80, 80);
+            Ghoul[i].isAlive=true;
+        }
+        pspeed=1.2;
+        lives=10;
     }
 
     // main thread
@@ -146,8 +189,13 @@ public void startLevel1(){
     public void run() {
         //for the moment we will loop things forever.
         while (true) {
+            if (Ghoul != null && Typpy != null){
             GhoulAttack();
             moveThings();//move all the game objects
+            }
+            if (level1 || level2 || level3){
+                runCorrectLevel();
+            }
             render();  // paint the graphics
             pause(10); // sleep for 10 ms
         }
@@ -164,7 +212,7 @@ public void startLevel1(){
 
                 // Avoid division by zero
                 if (distance != 0) {
-                    double speed = 0.5; // you can pick any speed you want 1, 2, 5 etc.
+                    double speed = pspeed; // you can pick any speed you want 1, 2, 5 etc.
                     Ghoul[i].dx = ((dx / distance) * speed);
                     Ghoul[i].dy = ((dy / distance) * speed);
                 }
@@ -189,15 +237,26 @@ public void startLevel1(){
         TypIsIntersectingGho = false;
         if (Typpy != null && Ghoul != null) {
             for (int i = 0; i < Ghoul.length; i++) {
-                if (Ghoul[i].rec.intersects(Typpy.rec) && TypIsIntersectingGho == false) {
+                if (Ghoul[i].rec.intersects(Typpy.rec)) {
                     TypIsIntersectingGho = true;
-                    points = points - 1;
-                    Ghoul[i].ypos = (int) -(Math.random() * 700);
-                    Ghoul[i].xpos = (int) (Math.random() * 1300);
+                    if (!Ghoul[i].isInter){
+                        Ghoul[i].isInter=true;
+                        lives = lives - 1;
+                        Ghoul[i].ypos = (int) -(Math.random() * 700);
+                        Ghoul[i].xpos = (int) (Math.random() * 1300);}
                 } if (Ghoul[i].rec.intersects(Typpy.rec) == false) {
-                    TypIsIntersectingGho = false;
+                    Ghoul[i].isInter = false;
                 }
             }
+        }
+        if (level1 && lives==0){
+            level1=false;
+            gameOver=true;
+        } if (level2 && lives==0){
+            level2=false;
+            gameOver=true;
+        } if (level3 && lives==0){
+            gameOver=true;
         }
     }
 
@@ -207,27 +266,65 @@ public void startLevel1(){
         g.clearRect(0, 0, WIDTH, HEIGHT);
 
         //draw the images
-        if (startScreen1){
+        if (gameOver){
+            g.setColor(new Color(100, 100, 100));
+            g.fillRect(0, 0, WIDTH, HEIGHT);
+
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Courier New", Font.BOLD, 15));
+            g.drawString("If is the end, will you still be hopeful?", 100, 100);
+            g.drawString("Please be hopeful. This is not the end.", 100, 200);
+            g.drawString("*PRESS ANY KEY TO RESUME*", 100, 600);
+        } else if (happyEnding){
+            g.setColor(new Color(200, 130, 40));
+            g.fillRect(0, 0, WIDTH, HEIGHT);
+
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Courier New", Font.BOLD, 15));
+            g.drawString("12 A.M. 1st January, 2000.", 100, 100);
+            g.drawString("You feel your eyelids slowly enclosing. It is way past your sleep time anyways.", 100, 100);
+            g.drawString("Nothing has happened. Everything remains exactly as it was.", 100, 200);
+            g.drawString("The old life that we lived so fondly together is untouched, unchanged.", 100, 300);
+            g.drawString("*PRESS ENTER KEY TO RESTART*", 100, 600);
+        } else if (startScreen1){
             g.setColor(new Color(20, 30, 100));
             g.fillRect(0, 0, WIDTH, HEIGHT);
 
             g.setColor(Color.WHITE);
             g.setFont(new Font("Courier New", Font.BOLD, 15));
-            g.drawString("11 P.M. 31st December, 1999.", 50, 100);
-            g.drawString("You woke up in dismay, sensing the imminent end of the world. ", 50, 200);
-            g.drawString("You feel disembodied. You do not know who you are, where you are, and most importantly, what to do. ", 50, 300);
-            g.drawString("Out of the blue, you feel the urge to type.", 50, 400);
-            g.drawString("*PRESS SPACE BAR TO BEGIN*", 50, 600);
-        }
-        if (level1){
+            g.drawString("11 P.M. 31st December, 1999.", 100, 100);
+            g.drawString("You woke up in dismay, sensing the imminent end of the world.", 100, 200);
+            g.drawString("You feel disembodied. You do not know who you are, where you are, and most importantly, what to do. ", 100, 300);
+            g.drawString("Out of the blue, you feel the urge to type.", 100, 400);
+            g.drawString("*PRESS ANY KEY TO START*", 100, 600);
+        } else if (startScreen2){
+            g.setColor(new Color(20, 30, 100));
+            g.fillRect(0, 0, WIDTH, HEIGHT);
+
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Courier New", Font.BOLD, 15));
+            g.drawString("11:30 P.M. 31st December, 1999.", 100, 100);
+            g.drawString("You do not believe in that apocalyptic crap. You don't think you do.", 100, 200);
+            g.drawString("You're feeling dizzy. Not the sleepy kind.", 100, 300);
+            g.drawString("*PRESS ENTER KEY TO CONTINUE*", 100, 600);
+        } else if (startScreen3){
+            g.setColor(new Color(20, 30, 100));
+            g.fillRect(0, 0, WIDTH, HEIGHT);
+
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Courier New", Font.BOLD, 15));
+            g.drawString("11:59 P.M. 31st December, 1999.", 100, 100);
+            g.drawString("Either this is the end, or you are delusional.", 100, 200);
+            g.drawString("*PRESS ENTER KEY TO CONTINUE*", 100, 600);
+        } else if (level1 || level2 || level3){
             g.drawImage(BackgroundPic, 0, 0, WIDTH, HEIGHT, null);
             g.setColor(Color.WHITE);
             g.setFont(new Font("Courier New", Font.BOLD, 15));
-            g.drawString("Points:" + points, 50, 50);
+            g.drawString("Lives:" + lives, 50, 50);
+            g.drawString("Points:" + points, 150, 50);
         if (Typpy!=null) {
             if (Typpy.isAlive == true) {
                 g.drawImage(TyppyPic, (int) Typpy.xpos, (int) Typpy.ypos, Typpy.width, Typpy.height, null);
-                g.drawRect(Typpy.rec.x, Typpy.rec.y, Typpy.rec.width, Typpy.rec.height);
             }
         }
 
@@ -356,6 +453,18 @@ public void startLevel1(){
         System.out.println("DONE graphic setup");
     }
 
+    void playMusic() {
+        try {
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(
+                    getClass().getResource("/WeirdFishes.wav"));
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+        } catch (Exception e) {
+            System.out.println("Music error: " + e.getMessage());
+        }
+    }
+
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -372,8 +481,119 @@ public void startLevel1(){
         char key=e.getKeyChar();
         int keyCode=e.getKeyCode();
 
-        if (keyCode==32){
+        if (gameOver) {
+            gameOver=false;
+            startScreen1=true;
+        } else if (happyEnding && keyCode==10) {
             runCorrectLevel();
+        } else if (startScreen1) {
+            runCorrectLevel();
+        } else if ((startScreen2 || startScreen3) && keyCode==10){
+                runCorrectLevel();
+        } else if ((level1 || level2 || level3) && keyCode==65 && Ghoul[0].xpos > 0 && Ghoul[0].xpos < 1300 && Ghoul[0].ypos < 700 && Ghoul[0].xpos > 0){
+            Ghoul[0].ypos = (int) -(Math.random() * 700);
+            Ghoul[0].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==66 && Ghoul[1].xpos > 0 && Ghoul[1].xpos < 1300 && Ghoul[1].ypos < 700 && Ghoul[1].xpos > 0){
+            Ghoul[1].ypos = (int) -(Math.random() * 700);
+            Ghoul[1].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==67 && Ghoul[2].xpos > 0 && Ghoul[2].xpos < 1300 && Ghoul[2].ypos < 700 && Ghoul[2].xpos > 0){
+            Ghoul[2].ypos = (int) -(Math.random() * 700);
+            Ghoul[2].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==68 && Ghoul[3].xpos > 0 && Ghoul[3].xpos < 1300 && Ghoul[3].ypos < 700 && Ghoul[3].xpos > 0){
+            Ghoul[3].ypos = (int) -(Math.random() * 700);
+            Ghoul[3].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==69 && Ghoul[4].xpos > 0 && Ghoul[4].xpos < 1300 && Ghoul[4].ypos < 700 && Ghoul[4].xpos > 0){
+            Ghoul[4].ypos = (int) -(Math.random() * 700);
+            Ghoul[4].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==70 && Ghoul[5].xpos > 0 && Ghoul[5].xpos < 1300 && Ghoul[5].ypos < 700 && Ghoul[5].xpos > 0){
+            Ghoul[5].ypos = (int) -(Math.random() * 700);
+            Ghoul[5].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==71 && Ghoul[6].xpos > 0 && Ghoul[6].xpos < 1300 && Ghoul[6].ypos < 700 && Ghoul[6].xpos > 0){
+            Ghoul[6].ypos = (int) -(Math.random() * 700);
+            Ghoul[6].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==72 && Ghoul[7].xpos > 0 && Ghoul[7].xpos < 1300 && Ghoul[7].ypos < 700 && Ghoul[7].xpos > 0){
+            Ghoul[7].ypos = (int) -(Math.random() * 700);
+            Ghoul[7].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==73 && Ghoul[8].xpos > 0 && Ghoul[8].xpos < 1300 && Ghoul[8].ypos < 700 && Ghoul[8].xpos > 0){
+            Ghoul[8].ypos = (int) -(Math.random() * 700);
+            Ghoul[8].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==74 && Ghoul[9].xpos > 0 && Ghoul[9].xpos < 1300 && Ghoul[9].ypos < 700 && Ghoul[9].xpos > 0){
+            Ghoul[9].ypos = (int) -(Math.random() * 700);
+            Ghoul[9].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==75 && Ghoul[10].xpos > 0 && Ghoul[10].xpos < 1300 && Ghoul[10].ypos < 700 && Ghoul[10].xpos > 0){
+            Ghoul[10].ypos = (int) -(Math.random() * 700);
+            Ghoul[10].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==76 && Ghoul[11].xpos > 0 && Ghoul[11].xpos < 1300 && Ghoul[11].ypos < 700 && Ghoul[11].xpos > 0){
+            Ghoul[11].ypos = (int) -(Math.random() * 700);
+            Ghoul[11].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==77 && Ghoul[12].xpos > 0 && Ghoul[12].xpos < 1300 && Ghoul[12].ypos < 700 && Ghoul[12].xpos > 0){
+            Ghoul[12].ypos = (int) -(Math.random() * 700);
+            Ghoul[12].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==78 && Ghoul[13].xpos > 0 && Ghoul[13].xpos < 1300 && Ghoul[13].ypos < 700 && Ghoul[13].xpos > 0){
+            Ghoul[13].ypos = (int) -(Math.random() * 700);
+            Ghoul[13].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==79 && Ghoul[14].xpos > 0 && Ghoul[14].xpos < 1300 && Ghoul[14].ypos < 700 && Ghoul[14].xpos > 0){
+            Ghoul[14].ypos = (int) -(Math.random() * 700);
+            Ghoul[14].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==80 && Ghoul[15].xpos > 0 && Ghoul[15].xpos < 1300 && Ghoul[15].ypos < 700 && Ghoul[15].xpos > 0){
+            Ghoul[15].ypos = (int) -(Math.random() * 700);
+            Ghoul[15].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==81 && Ghoul[16].xpos > 0 && Ghoul[16].xpos < 1300 && Ghoul[16].ypos < 700 && Ghoul[16].xpos > 0){
+            Ghoul[16].ypos = (int) -(Math.random() * 700);
+            Ghoul[16].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==82 && Ghoul[17].xpos > 0 && Ghoul[17].xpos < 1300 && Ghoul[17].ypos < 700 && Ghoul[17].xpos > 0){
+            Ghoul[17].ypos = (int) -(Math.random() * 700);
+            Ghoul[17].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==83 && Ghoul[18].xpos > 0 && Ghoul[18].xpos < 1300 && Ghoul[18].ypos < 700 && Ghoul[18].xpos > 0){
+            Ghoul[18].ypos = (int) -(Math.random() * 700);
+            Ghoul[18].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==84 && Ghoul[19].xpos > 0 && Ghoul[19].xpos < 1300 && Ghoul[19].ypos < 700 && Ghoul[19].xpos > 0){
+            Ghoul[19].ypos = (int) -(Math.random() * 700);
+            Ghoul[19].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==85 && Ghoul[20].xpos > 0 && Ghoul[20].xpos < 1300 && Ghoul[20].ypos < 700 && Ghoul[20].xpos > 0){
+            Ghoul[20].ypos = (int) -(Math.random() * 700);
+            Ghoul[20].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==86 && Ghoul[21].xpos > 0 && Ghoul[21].xpos < 1300 && Ghoul[21].ypos < 700 && Ghoul[21].xpos > 0){
+            Ghoul[21].ypos = (int) -(Math.random() * 700);
+            Ghoul[21].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==87 && Ghoul[22].xpos > 0 && Ghoul[22].xpos < 1300 && Ghoul[22].ypos < 700 && Ghoul[22].xpos > 0){
+            Ghoul[22].ypos = (int) -(Math.random() * 700);
+            Ghoul[22].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==88 && Ghoul[23].xpos > 0 && Ghoul[23].xpos < 1300 && Ghoul[23].ypos < 700 && Ghoul[23].xpos > 0){
+            Ghoul[23].ypos = (int) -(Math.random() * 700);
+            Ghoul[23].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==89 && Ghoul[24].xpos > 0 && Ghoul[24].xpos < 1300 && Ghoul[24].ypos < 700 && Ghoul[24].xpos > 0){
+            Ghoul[24].ypos = (int) -(Math.random() * 700);
+            Ghoul[24].xpos = (int) (Math.random() * 1300);
+            points++;
+        } else if ((level1 || level2 || level3) && keyCode==90 && Ghoul[25].xpos > 0 && Ghoul[25].xpos < 1300 && Ghoul[25].ypos < 700 && Ghoul[25].xpos > 0){
+            Ghoul[25].ypos = (int) -(Math.random() * 700);
+            Ghoul[25].xpos = (int) (Math.random() * 1300);
+            points++;
         }
     }
 }

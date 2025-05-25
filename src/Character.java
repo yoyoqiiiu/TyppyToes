@@ -10,6 +10,7 @@ public class Character {
     public int height;
     boolean isAlive;
     public Rectangle rec;
+    public boolean isInter=false;
 
     public Character (double pXpos, double pYpos, double pDx, double pDy, int pWidth, int pHeight){
         xpos = pXpos;
@@ -20,6 +21,7 @@ public class Character {
         height = pHeight;
         isAlive = true;
         rec = new Rectangle((int) xpos, (int) ypos, width, height);
+        isInter = false;
     }
     public void printInfo(){
         System.out.println("X position: " + xpos);
