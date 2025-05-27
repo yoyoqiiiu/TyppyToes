@@ -272,7 +272,7 @@ public void startLevel1(){
 
             g.setColor(Color.WHITE);
             g.setFont(new Font("Courier New", Font.BOLD, 15));
-            g.drawString("If is the end, will you still be hopeful?", 100, 100);
+            g.drawString("If this is the end, will you still be hopeful?", 100, 100);
             g.drawString("Please be hopeful. This is not the end.", 100, 200);
             g.drawString("*PRESS ANY KEY TO RESUME*", 100, 600);
         } else if (happyEnding){
