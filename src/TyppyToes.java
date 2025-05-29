@@ -54,9 +54,6 @@ public class TyppyToes implements Runnable, KeyListener {
     public boolean gameOver;
     public boolean happyEnding;
 
-    private Clip backgroundMusic;
-    private boolean musicPlaying = false;
-
     // Main method definition
     // This is the code that runs first and automatically
     public static void main(String[] args) {
@@ -453,7 +450,7 @@ public void startLevel1(){
         System.out.println("DONE graphic setup");
     }
 
-    void playMusic() {
+    public void playMusic() {
         try {
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(
                     getClass().getResource("/WeirdFishes.wav"));
@@ -464,6 +461,8 @@ public void startLevel1(){
             System.out.println("Music error: " + e.getMessage());
         }
     }
+    //https://docs.oracle.com/javase/tutorial/sound/playing.html
+    //https://www.baeldung.com/java-play-sound
 
 
     @Override
